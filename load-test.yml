@@ -1,0 +1,33 @@
+config:
+  target: 'http://localhost:3000'  # URL of your chat application
+  phases:
+    - duration: 60                 # Test duration: 60 seconds
+      arrivalRate: 10              # 10 new users per second
+  payload:
+    path: "./users.csv"
+    fields:
+      - "username"
+scenarios:
+  - flow:
+      - post:
+          url: "/login"
+          json:
+            username: "{{ username }}"
+      - function: "setUserName"
+      - think: 1
+      - function: "sendMessage"
+      - think: 1
+      - function: "receiveMessage"
+      - think: 1
+functions:
+  setUserName: |
+    const socket = require('socket.io-client')('http://localhost:3000');
+    socket.emit('set username', '{{ username }}');
+  sendMessage: |
+    const socket = require('socket.io-client')('http://localhost:3000');
+    socket.emit('chat message', 'Hello, world!');
+  receiveMessage: |
+    const socket = require('socket.io-client')('http://localhost:3000');
+    socket.on('chat message', (msg) => {
+      console.log('Received message:', msg);
+    });
