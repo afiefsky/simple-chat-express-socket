@@ -1,4 +1,3 @@
-// THIS IS SERVER SIDE CODE
 const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
@@ -19,6 +18,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('chat message', (msg) => {
+        console.log('Server received chat message:', msg);
         const message = { username: socket.username, text: msg };
         io.emit('chat message', message);
     });
