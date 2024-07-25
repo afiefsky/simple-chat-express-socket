@@ -1,0 +1,60 @@
+<!-- THIS IS CLIENT SIDE CODE -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Chat App</title>
+    <style>
+        body { font: 14px sans-serif; }
+        ul { list-style-type: none; padding: 0; }
+        li { padding: 8px; margin-bottom: 5px; background: #f4f4f4; }
+        #messages { margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div id="username-container">
+        <input id="username" placeholder="Enter your username" />
+        <button id="set-username">Set Username</button>
+    </div>
+    <ul id="messages" style="display: none;"></ul>
+    <form id="form" action="" style="display: none;">
+        <input id="input" autocomplete="off" /><button>Send</button>
+    </form>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socket = io();
+
+        var usernameContainer = document.getElementById('username-container');
+        var usernameInput = document.getElementById('username');
+        var setUsernameButton = document.getElementById('set-username');
+        var messages = document.getElementById('messages');
+        var form = document.getElementById('form');
+        var input = document.getElementById('input');
+
+        setUsernameButton.addEventListener('click', function() {
+            var username = usernameInput.value.trim();
+            if (username) {
+                socket.emit('set username', username);
+                usernameContainer.style.display = 'none';
+                messages.style.display = 'block';
+                form.style.display = 'block';
+            }
+        });
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (input.value) {
+                socket.emit('chat message', input.value);
+                input.value = '';
+            }
+        });
+
+        socket.on('chat message', function(msg) {
+            var item = document.createElement('li');
+            item.textContent = msg.username + ': ' + msg.text;
+            document.getElementById('messages').appendChild(item);
+            window.scrollTo(0, document.body.scrollHeight);
+        });
+    </script>
+</body>
+</html>
